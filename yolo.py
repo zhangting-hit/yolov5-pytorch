@@ -26,8 +26,8 @@ class YOLO(object):
         #   验证集损失较低不代表mAP较高，仅代表该权值在验证集上泛化性能较好。
         #   如果出现shape不匹配，同时要注意训练时的model_path和classes_path参数的修改
         #--------------------------------------------------------------------------#
-        "model_path"        : 'model_data/yolov5_s.pth',
-        "classes_path"      : 'model_data/coco_classes.txt',
+        "model_path"        : '/home/zhangting/yolov5-pytorch/logs/best_epoch_weights.pth',
+        "classes_path"      : 'model_data/class.txt',
         #---------------------------------------------------------------------#
         #   anchors_path代表先验框对应的txt文件，一般不修改。
         #   anchors_mask用于帮助代码找到对应的先验框，一般不修改。
@@ -120,9 +120,55 @@ class YOLO(object):
                 self.net = nn.DataParallel(self.net)
                 self.net = self.net.cuda()
 
-    #---------------------------------------------------#
-    #   检测图片
-    #---------------------------------------------------#
+    # #---------------------------------------------------#
+    # #   检测图片flask接口函数，返回true或false
+    # #---------------------------------------------------#
+    def detect_image_flask(self, image, crop = False, count = False):
+        #---------------------------------------------------#
+        #   计算输入图片的高和宽
+        #---------------------------------------------------#
+        image_shape = np.array(np.shape(image)[0:2])
+        #---------------------------------------------------------#
+        #   在这里将图像转换成RGB图像，防止灰度图在预测时报错。
+        #   代码仅仅支持RGB图像的预测，所有其它类型的图像都会转化成RGB
+        #---------------------------------------------------------#
+        image       = cvtColor(image)
+        #---------------------------------------------------------#
+        #   给图像增加灰条，实现不失真的resize
+        #   也可以直接resize进行识别
+        #---------------------------------------------------------#
+        image_data  = resize_image(image, (self.input_shape[1], self.input_shape[0]), self.letterbox_image)
+        #---------------------------------------------------------#
+        #   添加上batch_size维度
+        #---------------------------------------------------------#
+        image_data  = np.expand_dims(np.transpose(preprocess_input(np.array(image_data, dtype='float32')), (2, 0, 1)), 0)
+
+        with torch.no_grad():
+            images = torch.from_numpy(image_data)
+            if self.cuda:
+                images = images.cuda()
+            #---------------------------------------------------------#
+            #   将图像输入网络当中进行预测！
+            #---------------------------------------------------------#
+            outputs = self.net(images)
+            outputs = self.bbox_util.decode_box(outputs)
+            #---------------------------------------------------------#
+            #   将预测框进行堆叠，然后进行非极大抑制
+            #---------------------------------------------------------#
+            results = self.bbox_util.non_max_suppression(torch.cat(outputs, 1), self.num_classes, self.input_shape, 
+                        image_shape, self.letterbox_image, conf_thres = self.confidence, nms_thres = self.nms_iou)
+                                                    
+            if results[0] is None: 
+                return False
+
+            top_label = np.array(results[0][:, 6], dtype='int32')
+            for c in top_label:
+                predicted_class = self.class_names[int(c)]
+                if predicted_class == 'hat':  # 如果检测到帽子，则返回 true
+                    return True
+
+        return False  # 没有检测到帽子
+    
     def detect_image(self, image, crop = False, count = False):
         #---------------------------------------------------#
         #   计算输入图片的高和宽
@@ -585,7 +631,6 @@ class YOLO_ONNX(object):
                 new_image = cv2.resize(image, (w, h))
 
         return new_image
- 
     def detect_image(self, image):
         image_shape = np.array(np.shape(image)[0:2])
         #---------------------------------------------------------#

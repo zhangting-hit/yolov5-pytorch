@@ -24,7 +24,7 @@ if __name__ == "__main__":
     mode = "predict"
     #-------------------------------------------------------------------------#
     #   crop                指定了是否在单张图片预测后对目标进行截取
-    #   count               指定了是否进行目标的计数
+    #   count       d        指定了是否进行目标的计数
     #   crop、count仅在mode='predict'时有效
     #-------------------------------------------------------------------------#
     crop            = False
@@ -94,7 +94,8 @@ if __name__ == "__main__":
                 continue
             else:
                 r_image = yolo.detect_image(image, crop = crop, count=count)
-                r_image.show()
+                # r_image.show()
+                r_image.save("result.jpg")
 
     elif mode == "video":
         capture = cv2.VideoCapture(video_path)
