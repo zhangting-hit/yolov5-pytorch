@@ -111,6 +111,8 @@ class YOLO(object):
         #   建立yolo模型，载入yolo模型的权重
         #---------------------------------------------------#
         self.net    = YoloBody(self.anchors_mask, self.num_classes, self.phi, backbone = self.backbone, input_shape = self.input_shape)
+        # from IPython import embed ; embed()
+
         device      = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.net.load_state_dict(torch.load(self.model_path, map_location=device))
         self.net    = self.net.eval()
@@ -164,7 +166,7 @@ class YOLO(object):
             top_label = np.array(results[0][:, 6], dtype='int32')
             for c in top_label:
                 predicted_class = self.class_names[int(c)]
-                if predicted_class == 'hat':  # 如果检测到帽子，则返回 true
+                if predicted_class == 'id_card':  # 如果检测到帽子，则返回 true
                     return True
 
         return False  # 没有检测到帽子

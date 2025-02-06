@@ -151,8 +151,16 @@ class YoloDataset(Dataset):
         #------------------------------------------#
         flip = self.rand()<.5
         if flip: image = image.transpose(Image.FLIP_LEFT_RIGHT)
-
+        #------------------------------------------#
+        #   旋转图像
+        #------------------------------------------#
+        rotate = self.rand()<.5
+        if rotate:
+            angle = np.random.choice([90, 180, 270])
+            image = image.rotate(angle, expand=True)
         image_data      = np.array(image, np.uint8)
+
+
         #---------------------------------#
         #   对图像进行色域变换
         #   计算色域变换的参数
@@ -182,6 +190,36 @@ class YoloDataset(Dataset):
             box[:, [0,2]] = box[:, [0,2]]*nw/iw + dx
             box[:, [1,3]] = box[:, [1,3]]*nh/ih + dy
             if flip: box[:, [0,2]] = w - box[:, [2,0]]
+            if rotate:
+                for b in box:
+                    if angle == 90:
+                        x1 = b[0]
+                        y1 = b[1]
+                        x2 = b[2]
+                        y2 = b[3]
+                        b[0] = y1
+                        b[1] = w - x2
+                        b[2] = y2
+                        b[3] = w - x1
+                    elif angle == 180:
+                        x1 = b[0]
+                        y1 = b[1]
+                        x2 = b[2]
+                        y2 = b[3]
+                        b[0] = w - x2
+                        b[1] = h - y2
+                        b[2] = w - x1
+                        b[3] = h - y1
+                    elif angle == 270:
+                        x1 = b[0]
+                        y1 = b[1]
+                        x2 = b[2]
+                        y2 = b[3]
+                        b[0] = h - y2
+                        b[1] = x1
+                        b[2] = h - y1
+                        b[3] = x2
+
             box[:, 0:2][box[:, 0:2]<0] = 0
             box[:, 2][box[:, 2]>w] = w
             box[:, 3][box[:, 3]>h] = h

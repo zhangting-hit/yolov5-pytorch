@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<annotation>
+  <folder>SyntheticCards</folder>
+  <filename>place_5946_aug_0.jpg</filename>
+  <path>/home/zhangting/yolov5-pytorch/data/SyntheticCards/place_5946_aug_0.jpg</path>
+  <source>
+    <database>Unknown</database>
+  </source>
+  <size>
+    <width>732</width>
+    <height>600</height>
+    <depth>3</depth>
+  </size>
+  <segmented>0</segmented>
+</annotation>

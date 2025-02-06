@@ -56,8 +56,8 @@ if __name__ == "__main__":
     #   
     #   dir_origin_path和dir_save_path仅在mode='dir_predict'时有效
     #-------------------------------------------------------------------------#
-    dir_origin_path = "VOCdevkit/VOC2007/test"
-    dir_save_path   = "VOCdevkit/VOC2007/img_out/"
+    dir_origin_path = "/home/zhangting/yolov5-pytorch/data/test"
+    dir_save_path   = "VOCdevkit/VOC2007/img_out2/"
     #-------------------------------------------------------------------------#
     #   heatmap_save_path   热力图的保存路径，默认保存在model_data下
     #   
