@@ -1,4 +1,5 @@
 ## YOLOV5：You Only Look Once目标检测模型在pytorch当中的实现（edition v5.0 in Ultralytics）
+**本项目基于https://github.com/bubbliiiing/yolov5-pytorch/tree/bilibili**
 ---
 
 ## 目录
